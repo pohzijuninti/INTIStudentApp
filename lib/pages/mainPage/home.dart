@@ -299,6 +299,7 @@ class _HomeState extends State<Home> {
 
   Widget addNews(image, date, title, details1, details2) {
     return Card(
+      color: Colors.white,
       child: Row(
         children: [
           Padding(
