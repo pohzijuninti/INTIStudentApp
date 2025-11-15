@@ -14,6 +14,7 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final nameController = TextEditingController();
   final studentIDController = TextEditingController();
+  final OTPController = TextEditingController();
   final ICController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
@@ -118,7 +119,7 @@ class _RegisterState extends State<Register> {
                           }
                         },
                         textInputAction: TextInputAction.next,
-                        // obscureText: true,
+                        obscureText: true,
                         enableSuggestions: false,
                         autocorrect: false,
                         decoration: InputDecoration(
@@ -167,8 +168,8 @@ class _RegisterState extends State<Register> {
                               onPressed: () {
                                 if (formKey.currentState!
                                     .validate()) {
+                                  sendOTP();
                                   showOTPDialog();
-                                  // showRegistrationSuccessful();
                                 }
                               },
                               child: Text('Register',
@@ -206,62 +207,107 @@ class _RegisterState extends State<Register> {
       ),
     );
   }
-  void verifyOTP(String otp) {
-    const correctOTP = "123456"; // Replace with your generated OTP
 
-    if (otp == correctOTP) {
+  sendOTP() async {
+    var headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+    var request = http.Request('POST', Uri.parse('http://localhost:3000/otp'));
+    request.bodyFields = {
+      'studentID': studentIDController.text
+    };
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  verifyOTP() async {
+    var headers = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+    var request = http.Request(
+        'POST', Uri.parse('http://localhost:3000/otp/verify'));
+    request.bodyFields = {
+      'studentID': studentIDController.text,
+      'otp': OTPController.text
+    };
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
       Navigator.pop(context); // Close OTP dialog
 
-      register();             // Now register the user
-      _navigateToLogin(context); // Navigate after successful registration
-
-    } else {
+      register(); // Now register the user
+      showRegistrationSuccessful();
+    }
+    else {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Invalid OTP. Please try again."))
       );
+      print(response.reasonPhrase);
     }
   }
 
 
-  Future showOTPDialog() => showDialog(
+  Future<void> showOTPDialog() => showDialog(
     context: context,
     builder: (context) {
-      TextEditingController otpController = TextEditingController();
+      final email = '${studentIDController.text}@student.newinti.edu.my';
 
       return AlertDialog(
-        title: Text(
+        title: const Text(
           'OTP Verification',
           textAlign: TextAlign.center,
         ),
-        content: TextField(
-          controller: otpController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: "Enter OTP",
-            border: OutlineInputBorder(),
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'We have sent an OTP to $email.\n\n'
+                  'Please check your email and enter the OTP below.',
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: OTPController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: "Enter OTP",
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Text("Cancel"),
+            child: const Text("Cancel"),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor
+              backgroundColor: primaryColor,
             ),
             onPressed: () {
-              String otp = otpController.text.trim();
-              verifyOTP(otp);
+              verifyOTP();
             },
-            child: Text("Verify"),
+            child: const Text("Verify"),
           ),
         ],
       );
     },
   );
+
 
   Future showRegistrationSuccessful() => showDialog(
     context: context,
