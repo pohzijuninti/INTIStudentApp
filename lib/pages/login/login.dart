@@ -176,7 +176,17 @@ class _LoginState extends State<Login> {
       _navigateToMainPage(context);
     }
     else {
-      message = "Account Not Found";
+      var decode = await response.stream.bytesToString();
+
+      var text = json.decode(decode);
+
+      message = text["locked"].toString();
+      if(text["locked"] == null) {
+        message = text["error"] + " " + text["remainingAttempts"].toString() + " attempt(s) left.";
+      } else {
+        message = "Your account is locked. Please wait " + text["unlockInSecond"] + "seconds.";
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Container(
