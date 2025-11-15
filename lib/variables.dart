@@ -11,6 +11,9 @@ String? level;
 // server IP Address
 String? globalIPAddress;
 
+// auth token (saved after login)
+String? globalToken;
+
 // book facility
 var globalFacility;
 int globalArrivalDate = 0;

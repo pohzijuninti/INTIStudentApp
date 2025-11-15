@@ -42,6 +42,15 @@ class _SelectStudentState extends State<SelectStudent> {
     endTime = DateFormat.jm().format(unformattedEndTime);
   }
 
+  // build headers including token when available
+  Map<String, String> _buildHeaders({String contentType = 'application/json'}) {
+    final headers = <String, String>{'Content-Type': contentType};
+    if (globalToken != null && globalToken!.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $globalToken';
+    }
+    return headers;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -462,15 +471,12 @@ class _SelectStudentState extends State<SelectStudent> {
   );
 
   submit(studentID, name) async {
-    var headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    };
     var request = http.Request('POST', Uri.parse('http://$globalIPAddress:3000/add/students'));
     request.bodyFields = {
       'studentID': studentID,
       'name': name
     };
-    request.headers.addAll(headers);
+    request.headers.addAll(_buildHeaders(contentType: 'application/x-www-form-urlencoded'));
 
     http.StreamedResponse response = await request.send();
 
@@ -561,6 +567,7 @@ class _SelectStudentState extends State<SelectStudent> {
 
   getStudent() async {
     var request = http.Request('GET', Uri.parse('http://$globalIPAddress:3000/students'));
+    request.headers.addAll(_buildHeaders(contentType: 'application/json'));
 
     http.StreamedResponse response = await request.send();
 
@@ -587,16 +594,13 @@ class _SelectStudentState extends State<SelectStudent> {
   }
 
   createAppointment() async {
-    var headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    };
     var request = http.Request('POST', Uri.parse('http://$globalIPAddress:3000/book/facility'));
     request.bodyFields = {
       'locationID': globalFacility['locationID'].toString(),
       'arrivalDate': globalArrivalDate.toString(),
       'duration': (globalDuration!*60).toString(),
     };
-    request.headers.addAll(headers);
+    request.headers.addAll(_buildHeaders(contentType: 'application/x-www-form-urlencoded'));
 
     http.StreamedResponse response = await request.send();
 
@@ -627,14 +631,11 @@ class _SelectStudentState extends State<SelectStudent> {
   }
 
   blockDate(arrivalDate) async {
-    var headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    };
     var request = http.Request('PUT', Uri.parse('http://$globalIPAddress:3000/timeslots/$arrivalDate'));
     request.bodyFields = {
       'blockDate': '1'
     };
-    request.headers.addAll(headers);
+    request.headers.addAll(_buildHeaders(contentType: 'application/x-www-form-urlencoded'));
 
     http.StreamedResponse response = await request.send();
 
@@ -650,15 +651,12 @@ class _SelectStudentState extends State<SelectStudent> {
   }
 
   addAppointmentStudents(studentID) async {
-    var headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    };
     var request = http.Request('POST', Uri.parse('http://$globalIPAddress:3000/book/students'));
     request.bodyFields = {
       'bookID': bookID,
       'studentID': studentID
     };
-    request.headers.addAll(headers);
+    request.headers.addAll(_buildHeaders(contentType: 'application/x-www-form-urlencoded'));
 
     http.StreamedResponse response = await request.send();
 
@@ -666,7 +664,7 @@ class _SelectStudentState extends State<SelectStudent> {
       // print(await response.stream.bytesToString());
       var decode = await response.stream.bytesToString();
 
-      var text = json.decode(decode);
+      json.decode(decode);
 
     }
     else {

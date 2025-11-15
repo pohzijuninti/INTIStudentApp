@@ -17,6 +17,14 @@ class BookingHistory extends StatefulWidget {
 }
 
 class _BookingHistoryState extends State<BookingHistory> {
+  // build headers including token if available
+  Map<String, String> _buildHeaders({String contentType = 'application/json'}) {
+    final headers = <String, String>{'Content-Type': contentType};
+    if (globalToken != null && globalToken!.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $globalToken';
+    }
+    return headers;
+  }
 
   var appointments = [];
   var appointmentStudents = [];
@@ -241,6 +249,7 @@ class _BookingHistoryState extends State<BookingHistory> {
 
   getAppointmentStudent() async {
     var request = http.Request('GET', Uri.parse('http://$globalIPAddress:3000/appointment/students'));
+    request.headers.addAll(_buildHeaders(contentType: 'application/json'));
 
     http.StreamedResponse response = await request.send();
 
@@ -254,13 +263,15 @@ class _BookingHistoryState extends State<BookingHistory> {
 
     }
     else {
-    print(response.reasonPhrase);
+      var body = await response.stream.bytesToString();
+      print(body);
     }
 
   }
 
   getAppointment() async {
     var request = http.Request('GET', Uri.parse('http://$globalIPAddress:3000/appointment'));
+    request.headers.addAll(_buildHeaders(contentType: 'application/json'));
 
     http.StreamedResponse response = await request.send();
 
@@ -276,7 +287,8 @@ class _BookingHistoryState extends State<BookingHistory> {
 
     }
     else {
-    print(response.reasonPhrase);
+      var body = await response.stream.bytesToString();
+      print(body);
     }
   }
 
@@ -288,8 +300,8 @@ class _BookingHistoryState extends State<BookingHistory> {
   Future<void> _onDismissed(appointment, index) async {
     int bookID = appointment['bookID'];
 
-    var request = http.Request(
-        'DELETE', Uri.parse('http://$globalIPAddress:3000/book/facility/$bookID'));
+    var request = http.Request('DELETE', Uri.parse('http://$globalIPAddress:3000/book/facility/$bookID'));
+    request.headers.addAll(_buildHeaders(contentType: 'application/json'));
 
     http.StreamedResponse response = await request.send();
 
@@ -309,18 +321,14 @@ class _BookingHistoryState extends State<BookingHistory> {
       }
     }
     else {
-      print(response.reasonPhrase);
+      var body = await response.stream.bytesToString();
+      print(body);
     }
   }
   blockDate(arrivalDate) async {
-    var headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    };
     var request = http.Request('PUT', Uri.parse('http://$globalIPAddress:3000/timeslots/$arrivalDate'));
-    request.bodyFields = {
-      'blockDate': '0'
-    };
-    request.headers.addAll(headers);
+    request.bodyFields = {'blockDate': '0'};
+    request.headers.addAll(_buildHeaders(contentType: 'application/x-www-form-urlencoded'));
 
     http.StreamedResponse response = await request.send();
 
@@ -331,7 +339,8 @@ class _BookingHistoryState extends State<BookingHistory> {
       var text = json.decode(decode);
     }
     else {
-      print(response.reasonPhrase);
+      var body = await response.stream.bytesToString();
+      print(body);
     }
   }
 }

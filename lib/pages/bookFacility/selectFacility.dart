@@ -15,6 +15,15 @@ class Facility extends StatefulWidget {
 
 class _FacilityState extends State<Facility> {
 
+  // build headers including token when available
+  Map<String, String> _buildHeaders({String contentType = 'application/json'}) {
+    final headers = <String, String>{'Content-Type': contentType};
+    if (globalToken != null && globalToken!.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $globalToken';
+    }
+    return headers;
+  }
+
   var selectedFacility;
   int selectedHour = -1;
   var facilities = [];
@@ -313,6 +322,7 @@ class _FacilityState extends State<Facility> {
 
   getFacility() async {
     var request = http.Request('GET', Uri.parse('http://$globalIPAddress:3000/facility'));
+    request.headers.addAll(_buildHeaders(contentType: 'application/json'));
 
     http.StreamedResponse response = await request.send();
 

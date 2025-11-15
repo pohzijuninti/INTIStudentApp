@@ -15,6 +15,16 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   var students = [];
   String studentImage = "";
+
+  // build headers including token when available
+  Map<String, String> _buildHeaders({String contentType = 'application/json'}) {
+    final headers = <String, String>{'Content-Type': contentType};
+    if (globalToken != null && globalToken!.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $globalToken';
+    }
+    return headers;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,6 +87,7 @@ class _SettingsState extends State<Settings> {
 
   getStudent() async {
     var request = http.Request('GET', Uri.parse('http://$globalIPAddress:3000/students'));
+    request.headers.addAll(_buildHeaders(contentType: 'application/json'));
 
     http.StreamedResponse response = await request.send();
 
@@ -207,6 +218,9 @@ class _SettingsState extends State<Settings> {
     ),
   );
   void _navigateToLogin(BuildContext context) {
+    // clear auth state then navigate
+    globalToken = null;
+    account = null;
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
   }
 }

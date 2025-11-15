@@ -166,12 +166,12 @@ class _LoginState extends State<Login> {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      // print(await response.stream.bytesToString());
       var decode = await response.stream.bytesToString();
-
       var text = json.decode(decode);
 
-      account = text;
+      // save account object and token into global variables
+      account = text['account'] ?? text;
+      globalToken = text['token'];
 
       _navigateToMainPage(context);
     }

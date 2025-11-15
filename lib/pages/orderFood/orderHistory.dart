@@ -19,6 +19,15 @@ class _OrderHistoryState extends State<OrderHistory> {
   var orders = [];
   var foodOrder = [];
 
+  // build headers including token when available
+  Map<String, String> _buildHeaders({String contentType = 'application/json'}) {
+    final headers = <String, String>{'Content-Type': contentType};
+    if (globalToken != null && globalToken!.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $globalToken';
+    }
+    return headers;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,7 +169,7 @@ class _OrderHistoryState extends State<OrderHistory> {
 
   getOrder() async {
     var request = http.Request('GET', Uri.parse('http://$globalIPAddress:3000/order'));
-
+    request.headers.addAll(_buildHeaders(contentType: 'application/json'));
 
     http.StreamedResponse response = await request.send();
 
@@ -183,7 +192,7 @@ class _OrderHistoryState extends State<OrderHistory> {
   }
   getFoodOrder() async {
     var request = http.Request('GET', Uri.parse('http://$globalIPAddress:3000/food/order'));
-
+    request.headers.addAll(_buildHeaders(contentType: 'application/json'));
 
     http.StreamedResponse response = await request.send();
 

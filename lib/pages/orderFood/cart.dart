@@ -17,6 +17,15 @@ class Cart extends StatefulWidget {
 class _CartState extends State<Cart> {
   int orderID = 0;
 
+  // build headers including token when available
+  Map<String, String> _buildHeaders({String contentType = 'application/json'}) {
+    final headers = <String, String>{'Content-Type': contentType};
+    if (globalToken != null && globalToken!.isNotEmpty) {
+      headers['Authorization'] = 'Bearer $globalToken';
+    }
+    return headers;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -310,14 +319,11 @@ class _CartState extends State<Cart> {
   makeOrder() async {
     int date = 0;
     date = (DateTime.now().millisecondsSinceEpoch / 1000).toInt();
-    var headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    };
     var request = http.Request('POST', Uri.parse('http://$globalIPAddress:3000/add/order'));
     request.bodyFields = {
       'date': date.toString(),
     };
-    request.headers.addAll(headers);
+    request.headers.addAll(_buildHeaders(contentType: 'application/x-www-form-urlencoded'));
 
     http.StreamedResponse response = await request.send();
 
@@ -341,16 +347,13 @@ class _CartState extends State<Cart> {
     }
   }
   addFoodOrder(orderID, food) async {
-    var headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    };
     var request = http.Request('POST', Uri.parse('http://$globalIPAddress:3000/order/food'));
     request.bodyFields = {
       'orderID': orderID.toString(),
       'foodID': food["foodID"].toString(),
       'quantity': food["quantity"].toString()
     };
-    request.headers.addAll(headers);
+    request.headers.addAll(_buildHeaders(contentType: 'application/x-www-form-urlencoded'));
 
     http.StreamedResponse response = await request.send();
 
