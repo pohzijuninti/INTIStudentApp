@@ -118,7 +118,7 @@ class _RegisterState extends State<Register> {
                           }
                         },
                         textInputAction: TextInputAction.next,
-                        obscureText: true,
+                        // obscureText: true,
                         enableSuggestions: false,
                         autocorrect: false,
                         decoration: InputDecoration(
@@ -167,7 +167,8 @@ class _RegisterState extends State<Register> {
                               onPressed: () {
                                 if (formKey.currentState!
                                     .validate()) {
-                                  showRegistrationSuccessful();
+                                  showOTPDialog();
+                                  // showRegistrationSuccessful();
                                 }
                               },
                               child: Text('Register',
@@ -205,6 +206,63 @@ class _RegisterState extends State<Register> {
       ),
     );
   }
+  void verifyOTP(String otp) {
+    const correctOTP = "123456"; // Replace with your generated OTP
+
+    if (otp == correctOTP) {
+      Navigator.pop(context); // Close OTP dialog
+
+      register();             // Now register the user
+      _navigateToLogin(context); // Navigate after successful registration
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Invalid OTP. Please try again."))
+      );
+    }
+  }
+
+
+  Future showOTPDialog() => showDialog(
+    context: context,
+    builder: (context) {
+      TextEditingController otpController = TextEditingController();
+
+      return AlertDialog(
+        title: Text(
+          'OTP Verification',
+          textAlign: TextAlign.center,
+        ),
+        content: TextField(
+          controller: otpController,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            labelText: "Enter OTP",
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor
+            ),
+            onPressed: () {
+              String otp = otpController.text.trim();
+              verifyOTP(otp);
+            },
+            child: Text("Verify"),
+          ),
+        ],
+      );
+    },
+  );
+
   Future showRegistrationSuccessful() => showDialog(
     context: context,
     builder: (context) => AlertDialog(

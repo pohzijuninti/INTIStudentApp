@@ -8,6 +8,7 @@ import 'package:inti/pages/login/server.dart';
 import 'package:inti/pages/bookFacility/selectFacility.dart';
 import 'package:inti/pages/orderFood/orderConfirm.dart';
 import 'package:inti/pages/orderFood/menu.dart';
+import 'package:inti/theme.dart';
 
 void main() => runApp(const INTI());
 
@@ -22,6 +23,7 @@ class INTI extends StatelessWidget {
 
     return MaterialApp(
       theme: ThemeData(
+        focusColor: primaryColor,
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           foregroundColor: Colors.white
         ),
