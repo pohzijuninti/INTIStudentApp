@@ -4,6 +4,23 @@ import 'package:http/http.dart' as http;
 import 'package:inti/theme.dart';
 import 'package:inti/variables.dart';
 
+const List<String> COMMON_PASSWORD_PATTERNS = [
+  'password',
+  'passw0rd',
+  'letmein',
+  'welcome',
+  'admin',
+  'root',
+  '123456',
+  '1234567',
+  '12345678',
+  '123456789',
+  '1234567890',
+  'qwerty',
+  'abc123',
+  'iloveyou',
+];
+
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
 
@@ -110,13 +127,20 @@ class _RegisterState extends State<Register> {
                       child: TextFormField(
                         controller: passwordController,
                         validator: (value) {
-                          if (value!.isEmpty ||
-                              !RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*?~]).{8,}$')
-                                  .hasMatch(value)) {
-                            return "Use at least 8 characters one uppercase letter one lowercase \nletter one number and one special character in your password";
-                          } else {
-                            return null;
+                          if (value == null || value.isEmpty) {
+                            return 'Password is required';
                           }
+                          final lowered = value.toLowerCase();
+                          // exact match or contains any common pattern -> reject
+                          if (COMMON_PASSWORD_PATTERNS.contains(lowered) ||
+                              COMMON_PASSWORD_PATTERNS.any((p) => lowered.contains(p))) {
+                            return 'Password is too common. Choose a stronger password.';
+                          }
+                          final complexity = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*?~]).{8,}$');
+                          if (!complexity.hasMatch(value)) {
+                            return "Use at least 8 characters: one uppercase, one lowercase, one number and one special character.";
+                          }
+                          return null;
                         },
                         textInputAction: TextInputAction.next,
                         obscureText: true,
