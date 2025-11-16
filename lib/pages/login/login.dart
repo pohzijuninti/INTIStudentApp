@@ -5,6 +5,7 @@ import 'package:inti/pages/login/register.dart';
 import 'package:inti/pages/mainPage/mainPage.dart';
 import 'package:inti/theme.dart';
 import 'package:inti/variables.dart';
+import 'package:inti/utils/security.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -157,9 +158,10 @@ class _LoginState extends State<Login> {
     };
     var request = http.Request(
         'POST', Uri.parse('http://$globalIPAddress:3000/login'));
+    final hashedPassword = hashPassword(passwordController.text);
     request.bodyFields = {
       'studentID': studentIDController.text,
-      'password': passwordController.text
+      'password': hashedPassword
     };
     request.headers.addAll(headers);
 

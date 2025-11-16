@@ -3,6 +3,7 @@ import 'dart:convert'; // json
 import 'package:http/http.dart' as http;
 import 'package:inti/theme.dart';
 import 'package:inti/variables.dart';
+import 'package:inti/utils/security.dart';
 
 const List<String> COMMON_PASSWORD_PATTERNS = [
   'password',
@@ -381,11 +382,12 @@ class _RegisterState extends State<Register> {
       'Content-Type': 'application/x-www-form-urlencoded'
     };
     var request = http.Request('POST', Uri.parse('http://$globalIPAddress:3000/register'));
+    final hashedPassword = hashPassword(passwordController.text);
     request.bodyFields = {
       'name': nameController.text,
       'studentID': studentIDController.text,
       'ic': ICController.text,
-      'password': passwordController.text
+      'password': hashedPassword
     };
     request.headers.addAll(headers);
 
